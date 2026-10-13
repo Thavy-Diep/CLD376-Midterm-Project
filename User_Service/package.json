@@ -1,0 +1,15 @@
+{
+  "name": "user-service",
+  "version": "1.0.0",
+  "description": "Concert browsing and ticket booking microservice",
+  "main": "user-service.js",
+  "scripts": {
+    "start": "node user-service.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.15.1"
+  }
+}

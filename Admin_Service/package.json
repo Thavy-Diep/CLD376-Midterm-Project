@@ -1,0 +1,15 @@
+{
+  "name": "admin-service",
+  "version": "1.0.0",
+  "description": "Concert administration and booking monitoring microservice",
+  "main": "admin-service.js",
+  "scripts": {
+    "start": "node admin-service.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.15.1"
+  }
+}
