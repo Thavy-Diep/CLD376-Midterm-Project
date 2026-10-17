@@ -1,12 +1,12 @@
+require("dotenv").config();
+
 const express = require("express");
-var app = express();
+const app = express();
 const bcrypt = require("bcryptjs");
-
-var bodyParser = require("body-parser");
-app.use(bodyParser.json());
-
-require("./dbconnect.js");
+const connectDB = require("./dbconnect.js");
 const PersonModel = require("./person_schema.js");
+
+app.use(express.json());
 
 // REGISTRATION API
 app.post("/userregister", async (req, res) => {
@@ -54,7 +54,19 @@ app.post("/userregister", async (req, res) => {
   }
 });
 
-// START THE EXPRESS SERVER. 5001 is the PORT NUMBER
-app.listen(5001, () =>
-  console.log("Registration Service is running on port 5001"),
-);
+async function start() {
+  await connectDB();
+  const port = Number(process.env.PORT) || 5001;
+  app.listen(port, () => {
+    console.log(`Registration Service is running on port ${port}`);
+  });
+}
+
+if (require.main === module) {
+  start().catch((error) => {
+    console.error("Unable to start Registration Service", error);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = app;

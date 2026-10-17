@@ -7,7 +7,7 @@ const proxy = httpProxy.createProxyServer();
 
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
-const JWT_SECRET = process.env.JWT_SECRET || process.env.JWT_SECRETE || 'development-secret-change-me';
+const JWT_SECRET = process.env.JWT_SECRET;
 const userServiceTargets = (
     process.env.USER_SERVICE_URLS ||
     process.env.USER_SERVICE_URL ||
@@ -80,8 +80,12 @@ app.use('/auth', (req, res) => {
 })
 
 if (require.main === module) {
-    app.listen(4000, () => {
-        console.log("API Gateway Service is running on port 4000")
+    if (!JWT_SECRET) {
+        throw new Error('JWT_SECRET must be set');
+    }
+    const port = Number(process.env.PORT) || 4000;
+    app.listen(port, () => {
+        console.log(`API Gateway Service is running on port ${port}`)
     })
 }
 

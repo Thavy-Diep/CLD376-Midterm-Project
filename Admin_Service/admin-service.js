@@ -131,6 +131,9 @@ app.put("/updateconcert/:id", async (req, res) => {
 });
 
 async function start() {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET must be set");
+  }
   await connectDB();
   const port = Number(process.env.PORT) || 5003;
   app.listen(port, () => {

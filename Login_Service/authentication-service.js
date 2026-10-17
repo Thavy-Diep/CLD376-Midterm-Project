@@ -5,12 +5,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-const dbconnect = require("./dbconnect.js");
+const connectDB = require("./dbconnect.js");
 const PersonModel = require("./person_schema.js");
 
 app.use(express.json());
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.JWT_SECRETE || "development-secret-change-me";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.post("/login", async (req, res) => {
   const { email, password, role } = req.body;
@@ -50,9 +50,21 @@ app.post("/login", async (req, res) => {
   }
 });
 
+async function start() {
+  if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET must be set");
+  }
+  await connectDB();
+  const port = Number(process.env.PORT) || 5002;
+  app.listen(port, () => {
+    console.log(`Authentication Service is running on port ${port}`);
+  });
+}
+
 if (require.main === module) {
-  app.listen(5002, () => {
-    console.log("Authentication Service is running on port 5002");
+  start().catch((error) => {
+    console.error("Unable to start Authentication Service", error);
+    process.exitCode = 1;
   });
 }
 

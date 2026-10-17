@@ -1,9 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET =
-  process.env.JWT_SECRET ||
-  process.env.JWT_SECRETE ||
-  "development-secret-change-me";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 function requireRole(role) {
   return (req, res, next) => {

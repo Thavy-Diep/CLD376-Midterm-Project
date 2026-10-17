@@ -1,0 +1,104 @@
+x-node-healthcheck: &node-healthcheck
+  test: ["CMD", "node", "-e", "const net=require('node:net');const s=net.connect(Number(process.env.PORT),'127.0.0.1',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))"]
+  interval: 10s
+  timeout: 3s
+  retries: 5
+  start_period: 10s
+
+services:
+  mongodb:
+    image: mongo:7
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "mongodb://localhost:27017/admin", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  registration:
+    build:
+      context: ./Registration_Service
+    environment:
+      PORT: "5001"
+      MONGODB_URI: mongodb://mongodb:27017/concert_booking
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck: *node-healthcheck
+
+  login:
+    build:
+      context: ./Login_Service
+    environment:
+      PORT: "5002"
+      MONGODB_URI: mongodb://mongodb:27017/concert_booking
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck: *node-healthcheck
+
+  admin:
+    build:
+      context: ./Admin_Service
+    environment:
+      PORT: "5003"
+      MONGODB_URI: mongodb://mongodb:27017/concert_booking
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck: *node-healthcheck
+
+  user1:
+    build:
+      context: ./User_Service
+    environment:
+      PORT: "5000"
+      MONGODB_URI: mongodb://mongodb:27017/concert_booking
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck: *node-healthcheck
+
+  user2:
+    build:
+      context: ./User_Service
+    environment:
+      PORT: "5000"
+      MONGODB_URI: mongodb://mongodb:27017/concert_booking
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck: *node-healthcheck
+
+  gateway:
+    build:
+      context: ./APIGateway_Microservice
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: "4000"
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
+      REGISTRATION_SERVICE_URL: http://registration:5001
+      LOGIN_SERVICE_URL: http://login:5002
+      USER_SERVICE_URLS: http://user1:5000,http://user2:5000
+      ADMIN_SERVICE_URL: http://admin:5003
+    depends_on:
+      registration:
+        condition: service_healthy
+      login:
+        condition: service_healthy
+      admin:
+        condition: service_healthy
+      user1:
+        condition: service_healthy
+      user2:
+        condition: service_healthy
+
+volumes:
+  mongodb-data:

@@ -1,29 +1,16 @@
-// STEP-1 : IMPORT MONGOOSE PACKAGE
 const mongoose = require("mongoose");
 
-// Database Connection URL
-const uri =
-  "mongodb://diepthavy_db_user:CLD376thavy@ac-mkvco3h-shard-00-00.gkj7xfj.mongodb.net:27017,ac-mkvco3h-shard-00-01.gkj7xfj.mongodb.net:27017,ac-mkvco3h-shard-00-02.gkj7xfj.mongodb.net:27017/?ssl=true&replicaSet=atlas-mag8lw-shard-0&authSource=admin&appName=Cluster0";
-
-const clientOptions = {
-  serverApi: { version: "1", strict: true, deprecationErrors: true },
-};
-
-async function run() {
-  try {
-    // Create a Mongoose client with a MongoClientOptions object to set the Stable API version
-    // STEP-2 : ESTABLISH CONNECTION WITH MONGODB DATABASE THROUGH MONGOOSE
-    await mongoose.connect(uri, clientOptions);
-    await mongoose.connection.db.admin().command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!",
-    );
-  } finally {
-    // Ensures that the client will close when you finish/error
-    //await mongoose.disconnect();
+async function connectDB() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error("MONGODB_URI must be set");
   }
-}
-run().catch(console.dir);
 
-// STEP-3 : EXPORT MODULE mongoose because we need it in other JS file
-module.exports = mongoose;
+  await mongoose.connect(uri, {
+    serverApi: { version: "1", strict: true, deprecationErrors: true },
+  });
+  await mongoose.connection.db.admin().command({ ping: 1 });
+  console.log("Connected to MongoDB");
+}
+
+module.exports = connectDB;

@@ -1,8 +1,15 @@
 # Concert booking microservices
 
 The repository contains an API gateway, registration and login services, plus
-admin and user services. The admin and user services must use the same MongoDB
-database so that they share the `concerts` and `bookings` collections.
+admin and user services. Services read configuration from environment
+variables. Registration and Login share the user database; Admin and User
+share the concerts and bookings database. Configure them to use the same
+MongoDB database if the deployment should store all collections together.
+
+For local development, copy each service's `.env.example` to `.env` and set
+`MONGODB_URI` to a reachable MongoDB connection string. Use the same `JWT_SECRET`
+in Gateway, Login, User, and Admin. Keep `.env` files and real credentials out
+of Git.
 
 ## Admin service
 
@@ -55,3 +62,20 @@ instances (`http://127.0.0.1:5000` and `http://127.0.0.1:5004`) and the
 Registration, Login, and Admin targets. Keep `JWT_SECRET` identical across
 Gateway, Login, User, and Admin services. Start the gateway on port `4000`;
 its console logs show which User Service instance receives each request.
+
+## Run with Docker Compose
+
+Create a project-root `.env` from `.env.example` and set a private `JWT_SECRET`.
+Compose starts MongoDB with persistent storage, all application services, and
+two User Service instances. Only the gateway is published to the host:
+
+```powershell
+Copy-Item .env.example .env
+# Edit .env and replace JWT_SECRET with a private value.
+docker compose up --build
+```
+
+Use `http://localhost:4000` in Postman. The gateway routes between the
+`user1` and `user2` containers. Do not publish MongoDB or backend ports to the
+internet; on EC2, expose the gateway port required by the assignment and
+restrict inbound access using the instance security group.

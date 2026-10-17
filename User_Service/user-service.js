@@ -157,6 +157,9 @@ app.patch("/cancelticket/:id", requireRole("user"), async (req, res) => {
 });
 
 async function start() {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET must be set");
+  }
   await connectDB();
   const port = Number(process.env.PORT) || 5000;
   app.listen(port, () => {
