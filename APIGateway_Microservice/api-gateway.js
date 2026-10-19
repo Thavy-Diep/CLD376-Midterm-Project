@@ -50,7 +50,8 @@ function authRole(role) {
 // REDIRECT TO THE REGISTRATION MICROSERVICE
 app.use('/register', (req, res) => {
     proxy.web(req, res, {
-        target: process.env.REGISTRATION_SERVICE_URL || 'http://127.0.0.1:5001'
+        target: process.env.REGISTRATION_SERVICE_URL || 'http://127.0.0.1:5001',
+        pathRewrite: { '^/register': '' },
     });
 })
 
@@ -59,7 +60,7 @@ app.use('/user', authToken, authRole('user'), (req, res) => {
     const target = userServiceTargets[nextUserServiceIndex];
     nextUserServiceIndex = (nextUserServiceIndex + 1) % userServiceTargets.length;
     console.log(`Routing user request to ${target}`);
-    proxy.web(req, res, { target }, (error) => {
+    proxy.web(req, res, { target, pathRewrite: { '^/user': '' } }, (error) => {
         console.error(`Unable to reach User Service at ${target}`, error);
         if (!res.headersSent && !res.destroyed) {
             res.status(502).json({ message: 'User Service is unavailable' });
@@ -69,13 +70,14 @@ app.use('/user', authToken, authRole('user'), (req, res) => {
 
 // REDIRECT TO THE ADMIN MICROSERVICE
 app.use('/admin', authToken, authRole('admin'), (req, res) => {
-    proxy.web(req, res, { target: process.env.ADMIN_SERVICE_URL || 'http://127.0.0.1:5003' });
+    proxy.web(req, res, { target: process.env.ADMIN_SERVICE_URL || 'http://127.0.0.1:5003', pathRewrite: { '^/admin': '' } });
 })
 
 //REDIRECT TO THE LOGIN(Authentication) MICROSERVICE
 app.use('/auth', (req, res) => {
     proxy.web(req, res, {
-        target: process.env.LOGIN_SERVICE_URL || 'http://127.0.0.1:5002'
+        target: process.env.LOGIN_SERVICE_URL || 'http://127.0.0.1:5002',
+        pathRewrite: { '^/auth': '' },
     });
 })
 
