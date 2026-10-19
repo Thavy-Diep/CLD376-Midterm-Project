@@ -65,13 +65,16 @@ its console logs show which User Service instance receives each request.
 
 ## Run with Docker Compose
 
-Create a project-root `.env` from `.env.example` and set a private `JWT_SECRET`.
-Compose starts MongoDB with persistent storage, all application services, and
-two User Service instances. Only the gateway is published to the host:
+Create a project-root `.env` from `.env.example`, set a private `JWT_SECRET`,
+and replace the `MONGODB_URI` template with your MongoDB Atlas connection string.
+Use the `concert_booking` database in the URI path and URL-encode special
+characters in the database password. Compose starts the application services
+and two User Service instances, which all connect to Atlas. Only the gateway is
+published to the host:
 
 ```powershell
 Copy-Item .env.example .env
-# Edit .env and replace JWT_SECRET with a private value.
+# Edit .env and set private JWT_SECRET and MONGODB_URI values.
 docker compose up --build
 ```
 
