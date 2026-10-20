@@ -1,0 +1,26 @@
+x-node-healthcheck: &node-healthcheck
+  test:
+    [
+      "CMD",
+      "node",
+      "-e",
+      "const net=require('node:net');const s=net.connect(Number(process.env.PORT),'127.0.0.1',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))",
+    ]
+  interval: 10s
+  timeout: 3s
+  retries: 5
+  start_period: 10s
+
+services:
+  admin:
+    build:
+      context: ./Admin_Service
+    environment:
+      PORT: "5003"
+      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in the project-root .env file}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
+    healthcheck: *node-healthcheck
+
+
+
+
