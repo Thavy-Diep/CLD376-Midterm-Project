@@ -29,34 +29,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
     healthcheck: *node-healthcheck
 
-  admin:
-    build:
-      context: ./Admin_Service
-    environment:
-      PORT: "5003"
-      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in the project-root .env file}
-      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
-    healthcheck: *node-healthcheck
-
-  user1:
-    build:
-      context: ./User_Service
-    environment:
-      PORT: "5000"
-      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in the project-root .env file}
-      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
-    healthcheck: *node-healthcheck
-
-  user2:
-    build:
-      context: ./User_Service
-    environment:
-      PORT: "5000"
-      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in the project-root .env file}
-      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the project-root .env file}
-    healthcheck: *node-healthcheck
-
-  gateway:
+  
+    gateway:
     build:
       context: ./APIGateway_Microservice
     ports:
@@ -79,3 +53,4 @@ services:
         condition: service_healthy
       user2:
         condition: service_healthy
+  
